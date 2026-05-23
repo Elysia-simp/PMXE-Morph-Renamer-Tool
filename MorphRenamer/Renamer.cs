@@ -20,7 +20,7 @@ namespace MorphRenamer
 
         public Renamer()
         {
-            this.m_option = new PEPluginOption(false, true, "FacialRenamer");
+            this.m_option = new PEPluginOption(false, true, "Morph Renamer");
         }
 
         public override void Run(IPERunArgs args)

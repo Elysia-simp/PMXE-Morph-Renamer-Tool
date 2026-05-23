@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("me...?")]
 [assembly: AssemblyProduct("IT RENAMES MORPHS IDK?")]
-[assembly: AssemblyCopyright("Copyright ©Chips 2026... But this is an open source program so like...?")]
+[assembly: AssemblyCopyright("Copyright ©Chips 2026... this is open sourced...?")]
 [assembly: AssemblyTrademark("Why are you even reading this???")]
 [assembly: AssemblyCulture("")]
 
