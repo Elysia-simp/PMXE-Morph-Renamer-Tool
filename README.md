@@ -31,6 +31,10 @@ Valid facial types are as follow:
 
 This addon can support bone morphs from this modified fork of [Minmode's noesis script](https://github.com/Elysia-simp/noesis-pmx)
 
+You can probably make your own jsons in other programs as long as they are put into mmd space... But that's not on me lmfao.
+
+There is a scale factor for if you scaled your models prior to running the addon.
+
 # Build
 
 You can download from [release](https://github.com/Elysia-simp/PMXE-Morph-Renamer-Tool/releases/tag/Release).
