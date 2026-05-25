@@ -27,6 +27,9 @@ Valid facial types are as follow:
 
 "other" 
 ```
+# Bone Morphs
+
+This addon can support bone morphs from this modified fork of [Minmode's noesis script](https://github.com/Elysia-simp/noesis-pmx)
 
 # Build
 
