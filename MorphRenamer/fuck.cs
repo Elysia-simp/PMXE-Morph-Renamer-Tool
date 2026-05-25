@@ -54,6 +54,7 @@ namespace PECSScriptPlugin
             { "mouth", 3 },
             { "other", 4 },
         };
+        public float scale = 1.0f;
         string PanelName(int id) => PanelIDList.FirstOrDefault(x => x.Value == id).Key;
         int PanelID(string name) => PanelIDList[name];
         private void button1_Click(object sender, EventArgs e)
@@ -118,9 +119,89 @@ namespace PECSScriptPlugin
                 }
             }
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            get_pmxdata();
+            IPXPmxBuilder pmx_build = this.host.Builder.Pmx;
+
+            pmx.Morph.Clear();
+            var dlg = new OpenFileDialog();
+            dlg.Filter = "JSON (*.json)|*.json|All files (*.*)|*.*";
+            if (dlg.ShowDialog() != DialogResult.OK)
+                return;
+            string jsonPath = dlg.FileName;
+            try {
+            var root = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, JObject>>>(System.IO.File.ReadAllText(jsonPath));
+
+            foreach (var morphEntry in root)
+            {
+                string morphName = morphEntry.Key;
+
+                IPXMorph morph = pmx.Morph.FirstOrDefault(m => m.Name == morphName);
+                if (morph == null)
+                {
+                    morph = pmx_build.Morph();
+                    morph.Name = morphName;
+                    morph.NameE = morphName;
+                    morph.Kind = MorphKind.Bone;
+                    morph.Panel = 4;
+                    pmx.Morph.Add(morph);
+                }
+                else
+                {
+                    morph.Kind = MorphKind.Bone;
+                }
+
+                foreach (var boneEntry in morphEntry.Value)
+                {
+                    string boneName = boneEntry.Key;
+                    JObject data = boneEntry.Value;
+
+                    IPXBone bone = pmx.Bone.FirstOrDefault(b => b.Name == boneName);
+                    if (bone == null) continue;
+
+                    var pos = data["position"].ToObject<float[]>();
+                    var rot = data["rotation"].ToObject<float[]>();
+
+                    IPXBoneMorphOffset bm = pmx_build.BoneMorphOffset();
+                    bm.Bone = bone;
+
+                    bm.Translation = new V3(
+                        pos[0] * scale,
+                        pos[1] * scale,
+                        pos[2] * scale
+                    );
+
+                    bm.Rotation = new Q(rot[0], rot[1], rot[2], rot[3]);
+
+                    morph.Offsets.Add(bm);
+                }
+            }
+            var sorted = pmx.Morph.OrderBy(m => m.Name).ToList();
+            pmx.Morph.Clear();
+                foreach (var m in sorted)
+                    pmx.Morph.Add(m); 
+            }
+            catch
+            {
+                MessageBox.Show("womp");
+                return;
+            }
+            update_pmxdata();
+        }
+
         public IPEPluginHost host;
         public IPEConnector connect;
         public IPXPmx pmx;
         public IList<IPXMorph> morph;
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (float.TryParse(ScaleFactor2.Text, out float newScale))
+            {
+                scale = newScale;
+            }
+        }
     }
 }
