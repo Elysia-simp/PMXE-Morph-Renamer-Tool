@@ -13,6 +13,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace PECSScriptPlugin
@@ -25,7 +26,26 @@ namespace PECSScriptPlugin
             this.host = args.Host;
             this.connect = args.Host.Connector;
         }
+        private void MergeDuplicateMorphs(IPXPmx pmx)
+        {
+            var groups = pmx.Morph
+                .GroupBy(m => m.Name)
+                .Where(g => g.Count() > 1)
+                .ToList();
 
+            foreach (var group in groups)
+            {
+                IPXMorph keeper = group.First();
+
+                foreach (IPXMorph duplicate in group.Skip(1))
+                {
+                    foreach (var offset in duplicate.Offsets)
+                        keeper.Offsets.Add(offset);
+
+                    pmx.Morph.Remove(duplicate);
+                }
+            }
+        }
         public void get_pmxdata()
         {
             this.pmx = this.connect.Pmx.GetCurrentState();
@@ -86,7 +106,8 @@ namespace PECSScriptPlugin
             }
             foreach (var morph in this.morph)
             {
-                var match = morphMap.Keys.FirstOrDefault(k => morph.Name.EndsWith(k, StringComparison.OrdinalIgnoreCase));
+                var match = morphMap.Keys.FirstOrDefault(k =>
+                    Regex.IsMatch(morph.Name, $@"(?<![a-zA-Z0-9]){Regex.Escape(k)}$", RegexOptions.IgnoreCase));
                 if (match != null)
                 {
                     morph.Name = morphMap[match].NameJ;
@@ -94,6 +115,7 @@ namespace PECSScriptPlugin
                     morph.Panel = PanelID(morphMap[match].ID);
                 }
             }
+            MergeDuplicateMorphs(this.pmx); // if you're giving morphs the same name i'm assuming you want to merge... why else?
             update_pmxdata();
             MessageBox.Show("Renamed all morphs in Json.");
         }
