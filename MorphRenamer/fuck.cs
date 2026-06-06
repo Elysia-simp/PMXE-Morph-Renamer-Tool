@@ -45,6 +45,15 @@ namespace PECSScriptPlugin
                     pmx.Morph.Remove(duplicate);
                 }
             }
+            var invalidItems = pmx.ExpressionNode.Items
+                .Where(item => item.IsMorph &&
+                       (item.MorphItem == null || !pmx.Morph.Contains(item.MorphItem.Morph)))
+                .ToList();
+
+            foreach (var item in invalidItems)
+            {
+                pmx.ExpressionNode.Items.Remove(item);
+            }
         }
         public void get_pmxdata()
         {
